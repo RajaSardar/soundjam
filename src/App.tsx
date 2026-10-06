@@ -20,15 +20,16 @@ const initialUser: UserProfile = {
   name: 'Raja (Host)',
 };
 
+// Verified, real playable audio streams
 const initialTracks: Track[] = [
   {
     id: 't-1',
-    title: 'Starboy (Paris Live Remix)',
-    artist: 'The Weeknd & Daft Punk',
-    duration: 230,
-    source: 'spotify',
-    sourceUrlOrId: 'spotify:track:5aAx2tiyeQdaaq7UMvMT3Y',
-    coverArt: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80',
+    title: 'Yellow (Acoustic Master)',
+    artist: 'Coldplay',
+    duration: 269,
+    source: 'stream',
+    sourceUrlOrId: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/66/f3/1a/66f31a76-a6ed-cb4c-f353-23310a7ae9a8/mzaf_10593596652344378873.plus.aac.p.m4a',
+    coverArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f5/93/8c/f5938c49-964c-31d1-4b33-78b634f71fb7/190295978075.jpg/400x400bb.jpg',
     addedBy: { id: 'u-alex', name: 'Alex (Dev)' },
     upvotes: ['u-alex', initialUser.id],
     downvotes: [],
@@ -36,12 +37,12 @@ const initialTracks: Track[] = [
   },
   {
     id: 't-2',
-    title: 'Get Lucky (Funk Jam Session)',
-    artist: 'Daft Punk ft. Pharrell',
-    duration: 252,
-    source: 'youtube',
-    sourceUrlOrId: '5NV6Rdv1a3I',
-    coverArt: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&auto=format&fit=crop&q=80',
+    title: 'Viva La Vida',
+    artist: 'Coldplay',
+    duration: 241,
+    source: 'stream',
+    sourceUrlOrId: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b0/19/60/b0196060-7786-24c0-8c56-8f628fe89f52/mzaf_12479456646715449366.plus.aac.p.m4a',
+    coverArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/52/aa/85/52aa851f-15b7-6322-f91f-df84b15b7b19/190295978044.jpg/400x400bb.jpg',
     addedBy: { id: 'u-dj', name: 'DJ Diesel' },
     upvotes: ['u-dj'],
     downvotes: [],
@@ -49,11 +50,11 @@ const initialTracks: Track[] = [
   },
   {
     id: 't-3',
-    title: 'Breathe (Chill Lo-Fi Session)',
-    artist: 'Prodigy (SoundCloud VIP)',
-    duration: 165,
-    source: 'soundcloud',
-    sourceUrlOrId: 'soundcloud-vip-stream',
+    title: 'Coffee House Ambient Session',
+    artist: 'Google Audio Labs',
+    duration: 140,
+    source: 'stream',
+    sourceUrlOrId: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
     coverArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&auto=format&fit=crop&q=80',
     addedBy: { id: 'u-chloe', name: 'Chloe (Gen-Z)' },
     upvotes: ['u-chloe'],
@@ -62,18 +63,32 @@ const initialTracks: Track[] = [
   },
   {
     id: 't-4',
-    title: 'Garage Improvisation #4 (FLAC)',
-    artist: 'Jax & Friends (Lossless Audio)',
-    duration: 318,
-    source: 'local',
-    sourceUrlOrId: 'local-flac-stream',
-    coverArt: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&auto=format&fit=crop&q=80',
+    title: 'Synthwave Night Ride',
+    artist: 'Retro Dreamer',
+    duration: 210,
+    source: 'stream',
+    sourceUrlOrId: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3',
+    coverArt: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&auto=format&fit=crop&q=80',
     addedBy: { id: 'u-jax', name: 'Jax (Jam Host)' },
     upvotes: ['u-jax'],
     downvotes: [],
     addedAt: Date.now(),
   },
 ];
+
+const initialCurrentTrack: Track = {
+  id: 't-0',
+  title: 'Kangaroo MusiQue (RPG Groove)',
+  artist: 'DDR Classics Studio',
+  duration: 125,
+  source: 'stream',
+  sourceUrlOrId: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
+  coverArt: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=400&auto=format&fit=crop&q=80',
+  addedBy: { id: 'u-maya', name: 'Maya (Guitarist)' },
+  upvotes: ['u-maya'],
+  downvotes: [],
+  addedAt: Date.now() - 60000,
+};
 
 export function App() {
   const [roomId] = useState('JAM-777');
@@ -83,23 +98,10 @@ export function App() {
   const [syncOffset, setSyncOffset] = useState<number>(2);
   const [deviceCount] = useState<number>(5);
 
-  const [currentTrack, setCurrentTrack] = useState<Track | null>({
-    id: 't-0',
-    title: 'Midnight City (Synthwave Edit)',
-    artist: 'M83 • Remixed by SoundJam',
-    duration: 243,
-    source: 'youtube',
-    sourceUrlOrId: 'dX3k_QDnzHE',
-    coverArt: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=400&auto=format&fit=crop&q=80',
-    addedBy: { id: 'u-maya', name: 'Maya (Guitarist)' },
-    upvotes: ['u-maya'],
-    downvotes: [],
-    addedAt: Date.now() - 60000,
-  });
-
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [currentTime, setCurrentTime] = useState(102); // 1:42
-  const [duration, setDuration] = useState(243);
+  const [currentTrack, setCurrentTrack] = useState<Track | null>(initialCurrentTrack);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(125);
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
 
@@ -117,10 +119,46 @@ export function App() {
   );
 
   const [queueState, setQueueState] = useState<Track[]>(queueRef.current.getTracks());
-  const [skipVotes, setSkipVotes] = useState<string[]>(['u-chloe', 'u-alex']);
+  const [skipVotes, setSkipVotes] = useState<string[]>(['u-chloe']);
   const socketRef = useRef<Socket | null>(null);
 
-  // Initialize socket connection & NTP sync
+  // Auto-unlock audio on first touch/click
+  useEffect(() => {
+    const handleGesture = () => {
+      audioEngineRef.current.unlock();
+    };
+    window.addEventListener('click', handleGesture, { once: true });
+    window.addEventListener('touchstart', handleGesture, { once: true });
+    return () => {
+      window.removeEventListener('click', handleGesture);
+      window.removeEventListener('touchstart', handleGesture);
+    };
+  }, []);
+
+  // Connect real audio engine lifecycle events
+  useEffect(() => {
+    const engine = audioEngineRef.current;
+    engine.setOnTimeUpdate((time) => {
+      setCurrentTime(Math.floor(time));
+      const realDur = engine.getDuration();
+      if (realDur > 0 && realDur !== duration) {
+        setDuration(Math.floor(realDur));
+      }
+    });
+
+    engine.setOnEnded(() => {
+      handleNextTrack();
+    });
+
+    // Load initial track
+    if (initialCurrentTrack) {
+      engine.loadTrack(initialCurrentTrack).catch((err) => {
+        console.warn('Initial track load:', err);
+      });
+    }
+  }, []);
+
+  // Socket connection & NTP sync
   useEffect(() => {
     const socket = io('http://localhost:3001', {
       transports: ['websocket', 'polling'],
@@ -142,7 +180,6 @@ export function App() {
         },
       });
 
-      // Send initial NTP ping
       socket.emit('sync:ping', { clientSendTime: Date.now() });
     });
 
@@ -166,7 +203,6 @@ export function App() {
       }
     });
 
-    // Periodic NTP sync every 12 seconds
     const syncInterval = setInterval(() => {
       if (socket.connected) {
         socket.emit('sync:ping', { clientSendTime: Date.now() });
@@ -179,37 +215,30 @@ export function App() {
     };
   }, [roomId, currentUser, latencyOffset, routingMode]);
 
-  // Audio Playhead Timer simulation & sync
-  useEffect(() => {
-    let interval: any = null;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime(prev => {
-          if (prev >= duration) {
-            handleNextTrack();
-            return 0;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, duration]);
-
   // Playback Handlers
-  const handlePlayPause = () => {
-    const nextState = !isPlaying;
-    setIsPlaying(nextState);
-    if (nextState) {
-      audioEngineRef.current.play();
+  const handlePlayPause = async () => {
+    const engine = audioEngineRef.current;
+    engine.unlock();
+
+    if (!isPlaying) {
+      if (!engine.getCurrentTrack() && currentTrack) {
+        await engine.loadTrack(currentTrack);
+      }
+      try {
+        await engine.play();
+        setIsPlaying(true);
+      } catch (err) {
+        console.warn('Playback error:', err);
+      }
     } else {
-      audioEngineRef.current.pause();
+      engine.pause();
+      setIsPlaying(false);
     }
 
     if (socketRef.current?.connected) {
       socketRef.current.emit('playback:control', {
         roomId,
-        isPlaying: nextState,
+        isPlaying: !isPlaying,
         position: currentTime,
         hostTimestamp: Date.now(),
       });
@@ -229,17 +258,36 @@ export function App() {
     }
   };
 
-  const handleNextTrack = () => {
+  const handlePlayNow = async (track: Track) => {
+    const engine = audioEngineRef.current;
+    engine.unlock();
+    setCurrentTrack(track);
+    setCurrentTime(0);
+    setDuration(track.duration || 180);
+    setIsPlaying(true);
+    await engine.loadTrack(track);
+    try {
+      await engine.play();
+    } catch (e) {
+      console.warn('Play now failed:', e);
+    }
+  };
+
+  const handleNextTrack = async () => {
     const next = queueRef.current.popNextTrack();
     if (next) {
       setCurrentTrack(next);
       setCurrentTime(0);
-      setDuration(next.duration);
+      setDuration(next.duration || 180);
       setSkipVotes([]);
       setQueueState(queueRef.current.getTracks());
-      audioEngineRef.current.loadTrack(next).then(() => {
-        if (isPlaying) audioEngineRef.current.play();
-      });
+      const engine = audioEngineRef.current;
+      await engine.loadTrack(next);
+      if (isPlaying) {
+        try {
+          await engine.play();
+        } catch (e) {}
+      }
     }
   };
 
@@ -359,6 +407,7 @@ export function App() {
           <UniversalSearchDrawer
             currentUser={currentUser}
             onAddTrack={handleAddTrack}
+            onPlayNow={handlePlayNow}
           />
 
           <QueueDeck

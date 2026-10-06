@@ -12,22 +12,66 @@ export class UniversalAudioEngine {
   private volume: number = 0.85;
   private muted: boolean = false;
   private playingState: boolean = false;
+  private onEndedCallback: (() => void) | null = null;
+  private onTimeUpdateCallback: ((time: number) => void) | null = null;
 
   constructor() {
+    const webAudio = new WebAudioAdapter('stream');
+    this.adapters.set('stream', webAudio);
     this.adapters.set('local', new WebAudioAdapter('local'));
-    this.adapters.set('stream', new WebAudioAdapter('stream'));
     this.adapters.set('youtube', new YouTubeAdapter());
     this.adapters.set('soundcloud', new SoundCloudAdapter());
     this.adapters.set('spotify', new SpotifyAdapter());
+
+    // Connect WebAudio events
+    webAudio.setOnEnded(() => {
+      if (this.onEndedCallback) this.onEndedCallback();
+    });
+    webAudio.setOnTimeUpdate((time) => {
+      if (this.onTimeUpdateCallback) this.onTimeUpdateCallback(time);
+    });
+  }
+
+  public setOnEnded(cb: () => void): void {
+    this.onEndedCallback = cb;
+  }
+
+  public setOnTimeUpdate(cb: (time: number) => void): void {
+    this.onTimeUpdateCallback = cb;
+  }
+
+  public unlock(): void {
+    const webAudio = this.adapters.get('stream');
+    if (webAudio instanceof WebAudioAdapter) {
+      webAudio.unlockAudio();
+    }
   }
 
   public async loadTrack(track: Track): Promise<void> {
+    this.unlock();
+
     // If switching adapters, pause previous
-    if (this.activeAdapter && this.activeAdapter.sourceType !== track.source) {
+    if (this.activeAdapter) {
       this.activeAdapter.pause();
     }
 
-    const adapter = this.adapters.get(track.source) || this.adapters.get('local')!;
+    // If track is a direct audio file or stream, route to WebAudioAdapter
+    let adapterKey: AudioSourceType = track.source;
+    if (track.source === 'local') {
+      adapterKey = 'local';
+    } else if (track.source === 'stream') {
+      adapterKey = 'stream';
+    } else if (
+      track.sourceUrlOrId.endsWith('.mp3') ||
+      track.sourceUrlOrId.endsWith('.m4a') ||
+      track.sourceUrlOrId.endsWith('.ogg') ||
+      track.sourceUrlOrId.endsWith('.wav') ||
+      track.sourceUrlOrId.startsWith('blob:')
+    ) {
+      adapterKey = 'stream';
+    }
+
+    const adapter = this.adapters.get(adapterKey) || this.adapters.get('stream')!;
     this.activeAdapter = adapter;
     this.currentTrack = track;
     this.activeAdapter.setVolume(this.muted ? 0 : this.volume);
@@ -35,6 +79,7 @@ export class UniversalAudioEngine {
   }
 
   public async play(): Promise<void> {
+    this.unlock();
     if (this.activeAdapter) {
       await this.activeAdapter.play();
       this.playingState = true;
