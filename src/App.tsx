@@ -6,7 +6,7 @@ import { UniversalQueue } from './core/queue/UniversalQueue';
 import { ClockSyncService } from './core/sync/ClockSyncService';
 import { RoomSessionManager } from './core/room/RoomSessionManager';
 
-import { Header } from './components/Header';
+import { Header, MainTab } from './components/Header';
 import { PlayerStage } from './components/PlayerStage';
 import { UniversalSearchDrawer } from './components/UniversalSearchDrawer';
 import { QueueDeck } from './components/QueueDeck';
@@ -14,6 +14,7 @@ import { BottomPlayerBar } from './components/BottomPlayerBar';
 import { LatencyCalibrationModal } from './components/LatencyCalibrationModal';
 import { AudioRoutingModal } from './components/AudioRoutingModal';
 import { ShareModal } from './components/ShareModal';
+import { AccountsModal } from './components/AccountsModal';
 
 const initialUser: UserProfile = {
   id: `user-${Math.floor(Math.random() * 10000)}`,
@@ -105,7 +106,9 @@ export function App() {
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
 
-  // Modals state
+  // Modals & Navigation state
+  const [activeTab, setActiveTab] = useState<MainTab>('player');
+  const [isAccountsOpen, setIsAccountsOpen] = useState(false);
   const [isCalibOpen, setIsCalibOpen] = useState(false);
   const [isRoutingOpen, setIsRoutingOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -381,47 +384,99 @@ export function App() {
         deviceCount={deviceCount}
         syncOffsetMs={syncOffset}
         routingMode={routingMode}
+        activeTab={activeTab}
+        queueCount={queueState.length}
+        onTabChange={setActiveTab}
         onOpenRouting={() => setIsRoutingOpen(true)}
         onOpenCalibration={() => setIsCalibOpen(true)}
         onOpenShare={() => setIsShareOpen(true)}
+        onOpenAccounts={() => setIsAccountsOpen(true)}
       />
 
-      {/* Main Grid */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Player Stage */}
-        <div className="lg:col-span-5">
-          <PlayerStage
-            currentTrack={currentTrack}
-            isPlaying={isPlaying}
-            skipVotes={skipVotes}
-            skipVotesRequired={Math.floor(deviceCount / 2) + 1}
-            currentUserId={currentUser.id}
-            analyser={audioEngineRef.current.getAnalyser()}
-            onVoteSkip={handleVoteSkip}
-            onSendReaction={handleSendReaction}
-          />
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6">
+        {/* Desktop View (Clean 2-Column Side-by-Side) */}
+        <div className="hidden lg:grid lg:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Focused Player Hero */}
+          <div className="lg:col-span-5 sticky top-20">
+            <PlayerStage
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              skipVotes={skipVotes}
+              skipVotesRequired={Math.floor(deviceCount / 2) + 1}
+              currentUserId={currentUser.id}
+              analyser={audioEngineRef.current.getAnalyser()}
+              onVoteSkip={handleVoteSkip}
+              onSendReaction={handleSendReaction}
+              onOpenSearch={() => setActiveTab('search')}
+            />
+          </div>
+
+          {/* Right Column: Dynamic Active Tab (Queue or Search) */}
+          <div className="lg:col-span-7 flex flex-col space-y-4">
+            {activeTab === 'search' ? (
+              <UniversalSearchDrawer
+                currentUser={currentUser}
+                onAddTrack={handleAddTrack}
+                onPlayNow={handlePlayNow}
+              />
+            ) : (
+              <QueueDeck
+                queue={queueState}
+                currentUserId={currentUser.id}
+                isHost={true}
+                onVote={handleVote}
+                onPromote={handlePromote}
+                onRemove={handleRemoveTrack}
+                onPlayTrack={handlePlayNow}
+              />
+            )}
+          </div>
         </div>
 
-        {/* Right Column: Search & Collaborative Queue */}
-        <div className="lg:col-span-7 flex flex-col space-y-5">
-          <UniversalSearchDrawer
-            currentUser={currentUser}
-            onAddTrack={handleAddTrack}
-            onPlayNow={handlePlayNow}
-          />
+        {/* Mobile & Tablet View (Focused Single Tab) */}
+        <div className="lg:hidden flex flex-col items-center">
+          {activeTab === 'player' && (
+            <PlayerStage
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              skipVotes={skipVotes}
+              skipVotesRequired={Math.floor(deviceCount / 2) + 1}
+              currentUserId={currentUser.id}
+              analyser={audioEngineRef.current.getAnalyser()}
+              onVoteSkip={handleVoteSkip}
+              onSendReaction={handleSendReaction}
+              onOpenSearch={() => setActiveTab('search')}
+            />
+          )}
 
-          <QueueDeck
-            queue={queueState}
-            currentUserId={currentUser.id}
-            isHost={true}
-            onVote={handleVote}
-            onPromote={handlePromote}
-            onRemove={handleRemoveTrack}
-          />
+          {activeTab === 'queue' && (
+            <div className="w-full">
+              <QueueDeck
+                queue={queueState}
+                currentUserId={currentUser.id}
+                isHost={true}
+                onVote={handleVote}
+                onPromote={handlePromote}
+                onRemove={handleRemoveTrack}
+                onPlayTrack={handlePlayNow}
+              />
+            </div>
+          )}
+
+          {activeTab === 'search' && (
+            <div className="w-full">
+              <UniversalSearchDrawer
+                currentUser={currentUser}
+                onAddTrack={handleAddTrack}
+                onPlayNow={handlePlayNow}
+              />
+            </div>
+          )}
         </div>
       </main>
 
-      {/* Persistent Bottom Player Bar */}
+      {/* Persistent Clean Bottom Player Bar */}
       <BottomPlayerBar
         currentTrack={currentTrack}
         isPlaying={isPlaying}
@@ -429,17 +484,24 @@ export function App() {
         duration={duration}
         volume={volume}
         isMuted={isMuted}
-        latencyOffsetMs={latencyOffset}
         onPlayPause={handlePlayPause}
         onSeek={handleSeek}
         onPrevious={handlePreviousTrack}
         onNext={handleNextTrack}
         onVolumeChange={handleVolumeChange}
         onToggleMute={handleToggleMute}
-        onOpenCalibration={() => setIsCalibOpen(true)}
+        onOpenNowPlaying={() => setActiveTab('player')}
       />
 
       {/* Modals */}
+      <AccountsModal
+        isOpen={isAccountsOpen}
+        onClose={() => setIsAccountsOpen(false)}
+        onSpotifyTokenSaved={(token) => {
+          audioEngineRef.current.setSpotifyToken(token);
+        }}
+      />
+
       <LatencyCalibrationModal
         isOpen={isCalibOpen}
         currentOffset={latencyOffset}

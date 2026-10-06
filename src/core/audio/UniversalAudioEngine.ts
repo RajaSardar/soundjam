@@ -19,17 +19,38 @@ export class UniversalAudioEngine {
     const webAudio = new WebAudioAdapter('stream');
     this.adapters.set('stream', webAudio);
     this.adapters.set('local', new WebAudioAdapter('local'));
-    this.adapters.set('youtube', new YouTubeAdapter());
+    const ytAdapter = new YouTubeAdapter();
+    const spAdapter = new SpotifyAdapter();
+    this.adapters.set('youtube', ytAdapter);
     this.adapters.set('soundcloud', new SoundCloudAdapter());
-    this.adapters.set('spotify', new SpotifyAdapter());
+    this.adapters.set('spotify', spAdapter);
+
+    const notifyEnded = () => {
+      if (this.onEndedCallback) this.onEndedCallback();
+    };
+
+    const notifyTimeUpdate = (time: number) => {
+      if (this.onTimeUpdateCallback) this.onTimeUpdateCallback(time);
+    };
 
     // Connect WebAudio events
-    webAudio.setOnEnded(() => {
-      if (this.onEndedCallback) this.onEndedCallback();
-    });
-    webAudio.setOnTimeUpdate((time) => {
-      if (this.onTimeUpdateCallback) this.onTimeUpdateCallback(time);
-    });
+    webAudio.setOnEnded(notifyEnded);
+    webAudio.setOnTimeUpdate(notifyTimeUpdate);
+
+    // Connect YouTube events
+    ytAdapter.setOnEnded(notifyEnded);
+    ytAdapter.setOnTimeUpdate(notifyTimeUpdate);
+
+    // Connect Spotify events
+    spAdapter.setOnEnded(notifyEnded);
+    spAdapter.setOnTimeUpdate(notifyTimeUpdate);
+  }
+
+  public setSpotifyToken(token: string): void {
+    const sp = this.adapters.get('spotify');
+    if (sp instanceof SpotifyAdapter) {
+      sp.setAccessToken(token);
+    }
   }
 
   public setOnEnded(cb: () => void): void {
