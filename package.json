@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "server": "node --loader ts-node/esm server/index.ts",
+    "server": "tsx server/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "mobile:sync": "npm run build && cap sync",
@@ -46,6 +46,7 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.2",
     "vite": "^6.2.1",
     "vitest": "^3.0.8"
