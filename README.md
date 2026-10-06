@@ -52,7 +52,28 @@ node --loader ts-node/esm server/index.ts
 npm run dev
 ```
 
-Visit `http://localhost:3000` on your desktop and phone (on the same local network or via tunnel) to experience synchronized playback!
+### 5. 📱 Run as Native Mobile App (iOS & Android)
+
+SoundJam is fully configured with native **iOS** (Xcode) and **Android** (Android Studio / Gradle) platforms supporting background audio playback and wake locks:
+
+- **Open in Xcode (iOS Simulator / iPhone)**:
+  ```bash
+  npm run ios
+  # or directly run in simulator:
+  npm run mobile:run:ios
+  ```
+- **Open in Android Studio (Android Emulator / Device)**:
+  ```bash
+  npm run android
+  # or directly build/run on Android:
+  npm run mobile:run:android
+  ```
+- **Sync web code updates to native mobile projects**:
+  ```bash
+  npm run mobile:sync
+  ```
+
+Visit `http://localhost:3000` or launch the native app on your mobile device to experience synchronized playback!
 
 ---
 
